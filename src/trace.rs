@@ -111,6 +111,7 @@ pub fn receive_vote(event_name: String, voter: String, hash: String, tag: Option
     })
 }
 
+/// report a custom event
 pub fn report_custom(event_name: String, tag: Option<Json>) {
     report(TraceEvent {
         event_name,
@@ -119,6 +120,7 @@ pub fn report_custom(event_name: String, tag: Option<Json>) {
     });
 }
 
+/// report an error event
 pub fn report_error(event_name: String, tag: Option<Json>) {
     report(TraceEvent {
         event_name,
