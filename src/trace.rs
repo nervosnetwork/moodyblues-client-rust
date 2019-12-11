@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-
 use crate::event::{EventType, Json, Keyframe, TraceEvent};
 use crate::time::now;
 
@@ -12,15 +11,31 @@ pub struct Metadata {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TracePoint {
-    timestamp: u128,
-    event: TraceEvent,
-    metadata: Metadata,
+    pub timestamp: u64,
+    pub event: TraceEvent,
+    pub metadata: Metadata,
+}
+
+impl Default for TracePoint {
+    fn default() -> Self {
+        TracePoint {
+            timestamp: 0,
+            event: TraceEvent {
+                event_name: "".to_string(),
+                event_type: EventType::Custom,
+                tag: None,
+            },
+            metadata: Metadata {
+                address: "".to_string(),
+            },
+        }
+    }
 }
 
 pub trait Trace: Sync + Send {
     fn report(&self, event: TracePoint);
     fn metadata(&self) -> Metadata;
-    fn now(&self) -> u128;
+    fn now(&self) -> u64;
 }
 
 struct PrintTrace;
@@ -36,21 +51,13 @@ impl Trace for PrintTrace {
         }
     }
 
-    fn now(&self) -> u128 {
+    fn now(&self) -> u64 {
         now()
     }
 }
 
 fn tracer() -> &'static dyn Trace {
     unsafe { TRACER }
-}
-
-#[derive(Debug)]
-pub struct SetTraceError;
-
-pub fn set_boxed_tracer(tracer: Box<dyn Trace>) -> Result<(), SetTraceError> {
-    set_tracer(|| unsafe { &*Box::into_raw(tracer) });
-    Ok(())
 }
 
 fn set_tracer<F>(make_tracer: F) -> Result<(), SetTraceError>
@@ -62,6 +69,14 @@ where
         Ok(())
     }
 }
+
+#[derive(Debug)]
+pub struct SetTraceError;
+
+pub fn set_boxed_tracer(tracer: Box<dyn Trace>) -> Result<(), SetTraceError> {
+    set_tracer(|| unsafe { &*Box::into_raw(tracer) })
+}
+
 
 fn report(event: TraceEvent) {
     let t = tracer();

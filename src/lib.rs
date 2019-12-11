@@ -27,7 +27,7 @@ mod test {
     impl<W: Write + Send + 'static> trace::Trace for WriteReporter<W> {
         fn report(&self, point: TracePoint) {
             let mut file = self.reporter.lock().unwrap();
-            file.write_all(to_string(&point).unwrap().as_bytes());
+            file.write_all(to_string(&point).unwrap().as_bytes()).unwrap();
         }
 
         fn metadata(&self) -> Metadata {
@@ -36,7 +36,7 @@ mod test {
             }
         }
 
-        fn now(&self) -> u128 {
+        fn now(&self) -> u64 {
             0
         }
     }
