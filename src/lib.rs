@@ -1,16 +1,19 @@
 pub mod event;
+pub mod point;
 pub mod time;
 pub mod trace;
 
 #[cfg(test)]
 mod test {
-    use std::fs::{read_to_string, File};
+    use std::fs::File;
     use std::io::Write;
-
-    use super::trace;
-    use crate::trace::{Metadata, TracePoint};
-    use serde_json::to_string;
     use std::sync::Mutex;
+
+    use serde_json::{json, to_string};
+
+    use super::event::{EventType, TraceEvent};
+    use super::point::{Metadata, TracePoint};
+    use super::trace;
 
     struct WriteReporter<W: Write + Send + 'static> {
         reporter: Mutex<W>,
@@ -27,7 +30,8 @@ mod test {
     impl<W: Write + Send + 'static> trace::Trace for WriteReporter<W> {
         fn report(&self, point: TracePoint) {
             let mut file = self.reporter.lock().unwrap();
-            file.write_all(to_string(&point).unwrap().as_bytes()).unwrap();
+            file.write_all(to_string(&point).unwrap().as_bytes())
+                .unwrap();
         }
 
         fn metadata(&self) -> Metadata {
@@ -44,8 +48,41 @@ mod test {
     #[test]
     fn test_tracer() {
         trace::set_boxed_tracer(WriteReporter::new(File::create("log.log").unwrap()));
-        trace::start_epoch(1);
+        let point = TracePoint {
+            timestamp: 0,
+            event: TraceEvent {
+                event_name: "start_epoch".to_string(),
+                event_type: EventType::Custom,
+                tag: Some(json!({
+                  "x": "y"
+                })),
+            },
+            metadata: Metadata {
+                address: "".to_string(),
+            },
+        };
+        println!("{:?}", to_string(&point).unwrap());
+    }
 
-        assert_eq!(read_to_string("log.log").unwrap(), "{\"timestamp\":0,\"event\":{\"event_name\":\"start_epoch\",\"event_type\":{\"Keyframe\":{\"frame_info\":{\"NewEpoch\":{\"epoch_id\":1}}}},\"tag\":null},\"metadata\":{\"address\":\"0x0000000000000000000000000000000000000000\"}}");
+    #[test]
+    fn test_serialize() {
+        let point = TracePoint {
+            timestamp: 0,
+            event: TraceEvent {
+                event_name: "receive_propose".to_string(),
+                event_type: EventType::Propose {
+                    epoch_id: 1,
+                    round_id: 0,
+                    proposer: "0x10".to_string(),
+                    hash: "0x10".to_string(),
+                },
+                tag: None,
+            },
+            metadata: Metadata {
+                address: "".to_string(),
+            },
+        };
+
+        assert_eq!(to_string(&point).unwrap(), "{\"timestamp\":0,\"event_name\":\"receive_propose\",\"event_type\":\"propose\",\"tag\":{\"epoch_id\":1,\"hash\":\"0x10\",\"proposer\":\"0x10\",\"round_id\":0}}");
     }
 }

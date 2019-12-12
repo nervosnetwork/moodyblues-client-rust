@@ -7,9 +7,19 @@ pub type Json = Value;
 #[derive(Debug, Serialize, Deserialize)]
 pub enum EventType {
     /// mark the event as a propose event
-    Propose { proposer: String, hash: String },
+    Propose {
+        epoch_id: u64,
+        round_id: u64,
+        proposer: String,
+        hash: String,
+    },
     /// mark as a vote event
-    Vote { voter: String, hash: String },
+    Vote {
+        epoch_id: u64,
+        round_id: u64,
+        voter: String,
+        hash: String,
+    },
     /// mark as an error event
     Error,
     /// mark the event as a keyframe

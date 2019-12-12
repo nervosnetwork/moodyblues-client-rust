@@ -1,36 +1,8 @@
-use serde::{Deserialize, Serialize};
 use crate::event::{EventType, Json, Keyframe, TraceEvent};
+use crate::point::{Metadata, TracePoint};
 use crate::time::now;
 
 static mut TRACER: &'static dyn Trace = &PrintTrace;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Metadata {
-    pub address: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TracePoint {
-    pub timestamp: u64,
-    pub event: TraceEvent,
-    pub metadata: Metadata,
-}
-
-impl Default for TracePoint {
-    fn default() -> Self {
-        TracePoint {
-            timestamp: 0,
-            event: TraceEvent {
-                event_name: "".to_string(),
-                event_type: EventType::Custom,
-                tag: None,
-            },
-            metadata: Metadata {
-                address: "".to_string(),
-            },
-        }
-    }
-}
 
 pub trait Trace: Sync + Send {
     fn report(&self, event: TracePoint);
@@ -77,7 +49,6 @@ pub fn set_boxed_tracer(tracer: Box<dyn Trace>) -> Result<(), SetTraceError> {
     set_tracer(|| unsafe { &*Box::into_raw(tracer) })
 }
 
-
 fn report(event: TraceEvent) {
     let t = tracer();
     let metadata = t.metadata();
@@ -110,24 +81,48 @@ pub fn start_step(step_name: String) {
     report_keyframe("start_step".to_string(), Keyframe::NewStep { step_name })
 }
 
-pub fn receive_proposal(event_name: String, proposer: String, hash: String, tag: Option<Json>) {
+pub fn receive_proposal(
+    event_name: String,
+    epoch_id: u64,
+    round_id: u64,
+    proposer: String,
+    hash: String,
+    tag: Option<Json>,
+) {
     report(TraceEvent {
         event_name,
-        event_type: EventType::Propose { proposer, hash },
+        event_type: EventType::Propose {
+            epoch_id,
+            round_id,
+            proposer,
+            hash,
+        },
         tag,
     });
 }
 
-pub fn receive_vote(event_name: String, voter: String, hash: String, tag: Option<Json>) {
+pub fn receive_vote(
+    event_name: String,
+    epoch_id: u64,
+    round_id: u64,
+    voter: String,
+    hash: String,
+    tag: Option<Json>,
+) {
     report(TraceEvent {
         event_name,
-        event_type: EventType::Vote { voter, hash },
+        event_type: EventType::Vote {
+            epoch_id,
+            round_id,
+            voter,
+            hash,
+        },
         tag,
     })
 }
 
 /// report a custom event
-pub fn report_custom(event_name: String, tag: Option<Json>) {
+pub fn custom(event_name: String, tag: Option<Json>) {
     report(TraceEvent {
         event_name,
         event_type: EventType::Custom,
@@ -136,7 +131,7 @@ pub fn report_custom(event_name: String, tag: Option<Json>) {
 }
 
 /// report an error event
-pub fn report_error(event_name: String, tag: Option<Json>) {
+pub fn error(event_name: String, tag: Option<Json>) {
     report(TraceEvent {
         event_name,
         event_type: EventType::Error,
