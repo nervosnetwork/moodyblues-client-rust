@@ -63,12 +63,13 @@ main.rs
 ```rust
 use std::fs::File;
 use std::io::Write;
-
-use moodyblues_sdk::trace;
-use moodyblues_sdk::trace::{Metadata, TracePoint};
-use moodyblues_sdk::time::now;
-use serde_json::to_string;
 use std::sync::Mutex;
+
+use serde_json::{json, to_string};
+
+use moodyblues_sdk::event::{EventType, TraceEvent};
+use moodyblues_sdk::point::{Metadata, TracePoint};
+use moodyblues_sdk::trace;
 
 struct WriteReporter<W: Write + Send + 'static> {
     reporter: Mutex<W>,
@@ -95,7 +96,7 @@ impl<W: Write + Send + 'static> trace::Trace for WriteReporter<W> {
         }
     }
 
-    fn now(&self) -> u128 {
+    fn now(&self) -> u64 {
         // timestamp for each point
         now()
     }
