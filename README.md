@@ -2,7 +2,7 @@
 
 ## Intro
 
-A tracer SDK for [overlord][overlord] like consensus algorithm, helps you to debug 
+A tracer SDK for [Overlord][overlord] like consensus algorithm, helps you to debug 
 or optimize the algorithm.
 
 The consensus algorithm always plays with a distributed system, 

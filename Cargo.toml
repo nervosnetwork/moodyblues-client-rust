@@ -3,6 +3,18 @@ name = "moodyblues-sdk"
 version = "0.1.0"
 authors = ["homura <homura.dev@gmail.com>"]
 edition = "2018"
+license = "MIT"
+homepage = "https://github.com/nervosnetwork/moodyblues-client-rust"
+description = """
+A tracer SDK for Overlord like consensus algorithm
+"""
+keywords = ["overlord", "moodyblues", "tracer", "consensus"]
+include = [
+"src/*",
+"Cargo.toml",
+"License",
+"README.md"
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
