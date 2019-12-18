@@ -2,7 +2,13 @@
 
 ## Intro
 
-A tracer sdk for [overlord][overlord] like consensus algorithm, helps you to debug or optimize the algorithm.
+A tracer SDK for [overlord][overlord] like consensus algorithm, helps you to debug 
+or optimize the algorithm.
+
+The consensus algorithm always plays with a distributed system, 
+debugging or optimizing is so hard. If we can record events to describe what happens 
+when consensus state changes, and then replay with a visualization dashboard, 
+the debugging or optimizing would be easier.
 
 ## Quick start
 
@@ -13,7 +19,7 @@ Cargo.toml
 
 ```toml
 [dependencies]
-moodyblues-sdk = { git = "https://github.com/homura/moodyblues-client-rust" }
+moodyblues-sdk = { git = "https://github.com/nervosnetwork/moodyblues-client-rust" }
 ```
 
 consensus.rs
@@ -46,10 +52,10 @@ struct Consensus;
 
 impl Consensus {
   fn verify_singature(signature: Signature, hash: Hash) {
-    trace::report_custom("verify_singature".to_string(), json!({
+    trace::report_custom("verify_singature".to_string(), Some(json!({
       "hash": hash,
       "signature": signature
-    }))
+    })))
   }
 }
 ```
