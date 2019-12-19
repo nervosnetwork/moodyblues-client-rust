@@ -1,7 +1,8 @@
 use serde::ser::{Serialize, SerializeStruct, Serializer};
-use serde_json::json;
+use serde_json::{json, Map};
 
 use crate::event::{EventType, Keyframe, TraceEvent};
+use crate::VERSION;
 
 #[derive(Debug)]
 pub struct Metadata {
@@ -27,7 +28,7 @@ pub struct TracePoint {
 /// ```
 /// use serde_json::Map;
 ///
-/// let map = Map::new();
+/// let mut map = Map::new();
 /// let value1 = 1;
 /// let value2 = 2;
 /// assign!(map, value1, value2); // { "value1": 1, "value2": 2 }
@@ -105,6 +106,11 @@ impl Serialize for TracePoint {
         }
 
         state.serialize_field("tag", &tag)?;
+        let mut metadata = Map::new();
+        let address = &self.metadata.address.clone();
+        let v = VERSION;
+        assign!(metadata, address, v);
+        state.serialize_field("metadata", &metadata)?;
         state.end()
     }
 }

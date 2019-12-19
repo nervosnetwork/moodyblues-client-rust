@@ -3,17 +3,20 @@ pub mod point;
 pub mod time;
 pub mod trace;
 
+pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
 #[cfg(test)]
 mod test {
     use std::fs::File;
     use std::io::Write;
     use std::sync::Mutex;
 
-    use serde_json::{json, to_string};
+    use serde_json::{from_str, json, to_string, Value};
 
     use super::event::{EventType, TraceEvent};
     use super::point::{Metadata, TracePoint};
     use super::trace;
+    use super::VERSION;
 
     struct WriteReporter<W: Write + Send + 'static> {
         reporter: Mutex<W>,
@@ -82,7 +85,24 @@ mod test {
                 address: "".to_string(),
             },
         };
+        let expect = json!({
+          "timestamp": 0,
+          "event_name": "receive_propose",
+          "event_type": "propose",
+          "tag": {
+            "epoch_id": 1,
+            "hash": "0x10",
+            "proposer": "0x10",
+            "round_id": 0
+          },
+          "metadata": {
+            "address": "",
+            "v": VERSION
+          }
+        });
 
-        assert_eq!(to_string(&point).unwrap(), "{\"timestamp\":0,\"event_name\":\"receive_propose\",\"event_type\":\"propose\",\"tag\":{\"epoch_id\":1,\"hash\":\"0x10\",\"proposer\":\"0x10\",\"round_id\":0}}");
+        let e: Value = from_str(&to_string(&expect).unwrap()).unwrap();
+        let a: Value = from_str(&to_string(&point).unwrap()).unwrap();
+        assert_eq!(e, a);
     }
 }
