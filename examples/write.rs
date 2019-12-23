@@ -42,7 +42,7 @@ impl<W: Write + Send + 'static> trace::Trace for WriteReporter<W> {
 
 fn main() -> std::io::Result<()> {
     trace::set_boxed_tracer(WriteReporter::new(LineWriter::new(
-        File::create("log.log").unwrap(),
+        File::create("examples/write.log").unwrap(),
     )))
     .expect("init tracer failed");
     trace::start_epoch(1);

@@ -13,7 +13,6 @@ mod test {
 
     use serde_json::{from_str, json, to_string, Value};
 
-    use super::event::{EventType, Keyframe, TraceEvent};
     use super::point::{Metadata, TracePoint};
     use super::trace;
     use super::VERSION;
@@ -52,7 +51,7 @@ mod test {
     #[test]
     fn test_tracer() -> std::io::Result<()> {
         trace::set_boxed_tracer(WriteReporter::new(LineWriter::new(
-            File::create("log.log").unwrap(),
+            File::create("log.log")?,
         )))
         .expect("init tracer failed");
         trace::start_epoch(1);
@@ -160,8 +159,8 @@ mod test {
         ];
 
         for (_i, (line, json)) in reader.lines().zip(events.iter()).enumerate() {
-            let e: Value = from_str(&line.unwrap()).unwrap();
-            let a: Value = from_str(&to_string(json).unwrap()).unwrap();
+            let e: Value = from_str(&line?)?;
+            let a: Value = from_str(&to_string(json)?)?;
             assert_eq!(e, a);
         }
         Ok(())
