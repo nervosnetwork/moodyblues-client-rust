@@ -89,11 +89,15 @@ impl Serialize for TracePoint {
                     Keyframe::NewEpoch { epoch_id } => {
                         assign!(map, epoch_id);
                     }
-                    Keyframe::NewRound { round_id } => {
-                        assign!(map, round_id);
+                    Keyframe::NewRound { round_id, epoch_id } => {
+                        assign!(map, round_id, epoch_id);
                     }
-                    Keyframe::NewStep { step_name } => {
-                        assign!(map, step_name);
+                    Keyframe::NewStep {
+                        step_name,
+                        round_id,
+                        epoch_id,
+                    } => {
+                        assign!(map, step_name, round_id, epoch_id);
                     }
                 }
             }

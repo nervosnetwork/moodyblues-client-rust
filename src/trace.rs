@@ -73,12 +73,22 @@ pub fn start_epoch(epoch_id: u64) {
     report_keyframe("start_epoch".to_string(), Keyframe::NewEpoch { epoch_id });
 }
 
-pub fn start_round(round_id: u64) {
-    report_keyframe("start_round".to_string(), Keyframe::NewRound { round_id })
+pub fn start_round(round_id: u64, epoch_id: u64) {
+    report_keyframe(
+        "start_round".to_string(),
+        Keyframe::NewRound { round_id, epoch_id },
+    )
 }
 
-pub fn start_step(step_name: String) {
-    report_keyframe("start_step".to_string(), Keyframe::NewStep { step_name })
+pub fn start_step(step_name: String, round_id: u64, epoch_id: u64) {
+    report_keyframe(
+        "start_step".to_string(),
+        Keyframe::NewStep {
+            step_name,
+            round_id,
+            epoch_id,
+        },
+    )
 }
 
 pub fn receive_proposal(

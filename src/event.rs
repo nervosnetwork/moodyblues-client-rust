@@ -44,9 +44,13 @@ pub enum Keyframe {
     /// mark the event as starts of epoch
     NewEpoch { epoch_id: u64 },
     /// mark the event as starts of round
-    NewRound { round_id: u64 },
+    NewRound { round_id: u64, epoch_id: u64 },
     /// mark the event as starts of step
-    NewStep { step_name: String },
+    NewStep {
+        step_name: String,
+        round_id: u64,
+        epoch_id: u64,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
